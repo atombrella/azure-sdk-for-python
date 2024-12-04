@@ -147,7 +147,7 @@ class CallAutomationRecordedTestCase(AzureRecordedTestCase):
             try:
                 with open(file_path, "r") as json_file:
                     self.event_store = json.load(json_file)
-            except IOError as e:
+            except OSError as e:
                 raise SystemExit(f"File write operation failed: {e}")
 
     def _record_method_events(self) -> None:
@@ -157,7 +157,7 @@ class CallAutomationRecordedTestCase(AzureRecordedTestCase):
             try:
                 with open(file_path, "w") as json_file:
                     json.dump(self.event_to_save, json_file)
-            except IOError as e:
+            except OSError as e:
                 raise SystemExit(f"File write operation failed: {e}")
 
     def check_for_event(self, event_type: str, call_connection_id: str, wait_time: timedelta) -> Any:

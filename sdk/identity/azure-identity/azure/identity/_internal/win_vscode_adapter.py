@@ -10,7 +10,7 @@ from .._constants import VSCODE_CREDENTIALS_SECTION
 
 try:
     import ctypes.wintypes as wt
-except (IOError, ValueError):
+except (OSError, ValueError):
     pass
 
 _LOGGER = logging.getLogger(__name__)

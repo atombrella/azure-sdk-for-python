@@ -14,13 +14,13 @@ from azure.keyvault.secrets.aio import SecretClient
 load_dotenv()
 
 if "AZURE_KEYVAULT_URL" not in os.environ:
-    raise EnvironmentError("Missing a Key Vault URL")
+    raise OSError("Missing a Key Vault URL")
 if "KEYVAULT_TENANT_ID" not in os.environ:
-    raise EnvironmentError("Missing a tenant ID for Key Vault")
+    raise OSError("Missing a tenant ID for Key Vault")
 if "KEYVAULT_CLIENT_ID" not in os.environ:
-    raise EnvironmentError("Missing a client ID for Key Vault")
+    raise OSError("Missing a client ID for Key Vault")
 if "KEYVAULT_CLIENT_SECRET" not in os.environ:
-    raise EnvironmentError("Missing a client secret for Key Vault")
+    raise OSError("Missing a client secret for Key Vault")
 
 hsm_present = "AZURE_MANAGEDHSM_URL" in os.environ
 

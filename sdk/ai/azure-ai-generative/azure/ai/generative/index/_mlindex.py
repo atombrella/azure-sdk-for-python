@@ -680,7 +680,7 @@ class MLIndex:
                             embeddings = EmbeddingsContainer.load(
                                 previous_embeddings_dir_name, embeddings_container  # type: ignore[arg-type]
                             )
-                        except (IOError, ValueError) as e:
+                        except (OSError, ValueError) as e:
                             logger.warning(
                                 f"failed to load embeddings from {embeddings_container} with {e}.",
                                 extra={"print": True},

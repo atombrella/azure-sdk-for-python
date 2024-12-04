@@ -93,7 +93,7 @@ def get_certificate_parameters(content: bytes, extension: str) -> dict:
     try:
         with open(parameters["cert_path"], "wb") as f:
             f.write(parameters["cert_bytes"])
-    except IOError as ex:
+    except OSError as ex:
         pytest.skip("Failed to write a file: {}".format(ex))
 
     return parameters
@@ -110,7 +110,7 @@ def get_certificate_with_password_parameters(password_protected_content: bytes, 
     try:
         with open(parameters["cert_with_password_path"], "wb") as f:
             f.write(parameters["cert_with_password_bytes"])
-    except IOError as ex:
+    except OSError as ex:
         pytest.skip("Failed to write a file: {}".format(ex))
 
     return parameters

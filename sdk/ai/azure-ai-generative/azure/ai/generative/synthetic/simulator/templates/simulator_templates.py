@@ -68,7 +68,7 @@ class SimulatorTemplates:
 
     async def _get_ch_template_collections(self, collection_key):
         if self.rai_client is None:
-            raise EnvironmentError("Service client is unavailable. Ai client is required to use rai service.")
+            raise OSError("Service client is unavailable. Ai client is required to use rai service.")
 
         if self.categorized_ch_parameters is None:
             categorized_parameters = {}

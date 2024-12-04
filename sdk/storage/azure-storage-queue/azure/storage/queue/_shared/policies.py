@@ -361,7 +361,7 @@ class StorageContentValidation(SansIOHTTPPolicy):
                 md5.update(chunk)
             try:
                 data.seek(pos, SEEK_SET)
-            except (AttributeError, IOError) as exc:
+            except (OSError, AttributeError) as exc:
                 raise ValueError("Data should be bytes or a seekable file-like object.") from exc
         else:
             raise ValueError("Data should be bytes or a seekable file-like object.")

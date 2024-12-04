@@ -91,7 +91,7 @@ class InteractiveBrowserCredential(InteractiveCredential):
             try:
                 redirect_uri = "http://{}:{}".format(self._parsed_url.hostname, self._parsed_url.port)
                 server = self._server_class(self._parsed_url.hostname, self._parsed_url.port, timeout=self._timeout)
-            except socket.error as ex:
+            except OSError as ex:
                 raise CredentialUnavailableError(message="Couldn't start an HTTP server on " + redirect_uri) from ex
         else:
             for port in range(8400, 9000):
@@ -99,7 +99,7 @@ class InteractiveBrowserCredential(InteractiveCredential):
                     server = self._server_class("localhost", port, timeout=self._timeout)
                     redirect_uri = "http://localhost:{}".format(port)
                     break
-                except socket.error:
+                except OSError:
                     continue  # keep looking for an open port
 
         if not server:

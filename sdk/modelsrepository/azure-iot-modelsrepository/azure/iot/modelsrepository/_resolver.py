@@ -175,7 +175,7 @@ class FilesystemFetcher(Fetcher):
             _LOGGER.debug("File open on %s", abs_path)
             with io.open(abs_path, encoding="utf-8-sig") as f:
                 file_str = f.read()
-        except (OSError, IOError):
+        except OSError:
             # In Python 3 a FileNotFoundError is raised when a file doesn't exist.
             # In Python 2 an IOError is raised when a file doesn't exist.
             # Both of these errors are inherited from OSError, so we use this to catch them both.

@@ -106,7 +106,7 @@ class InteractiveBrowserBrokerCredential(_InteractiveBrowserCredential):
                     )
                     if "access_token" in result:
                         return result
-                except socket.error:
+                except OSError:
                     pass
             try:
                 result = app.acquire_token_interactive(
@@ -120,7 +120,7 @@ class InteractiveBrowserBrokerCredential(_InteractiveBrowserCredential):
                     enable_msa_passthrough=self._enable_msa_passthrough,
                     auth_scheme=auth_scheme,
                 )
-            except socket.error as ex:
+            except OSError as ex:
                 raise CredentialUnavailableError(message="Couldn't start an HTTP server.") from ex
             if "access_token" not in result and "error_description" in result:
                 if within_dac.get():

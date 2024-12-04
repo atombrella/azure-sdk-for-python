@@ -664,8 +664,8 @@ class Simulator:
         """
         try:
             from promptflow import load_flow
-        except EnvironmentError as env_err:
-            raise EnvironmentError(
+        except OSError as env_err:
+            raise OSError(
                 "Unable to import from promptflow. Have you installed promptflow in the python environment?"
             ) from env_err
         flow = load_flow(pf_path)

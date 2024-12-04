@@ -477,7 +477,7 @@ class SubStream(IOBase):
                         self._wrapped_stream.seek(absolute_position, SEEK_SET)
                         # If we can't seek to the right location, our read will be corrupted so fail fast.
                         if self._wrapped_stream.tell() != absolute_position:
-                            raise IOError("Stream failed to seek to the desired location.")
+                            raise OSError("Stream failed to seek to the desired location.")
                         buffer_from_stream = self._wrapped_stream.read(current_max_buffer_size)
                 else:
                     absolute_position = self._stream_begin_index + self._position

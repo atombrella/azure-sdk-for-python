@@ -200,7 +200,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
             # EINTR, EAGAIN, EWOULDBLOCK would signal that the banner
             # has _not_ been sent
             self.connected = True
-        except (OSError, IOError, SSLError) as e:
+        except (OSError, SSLError) as e:
             _LOGGER.info("Transport connection failed: %r", e, extra=self.network_trace_params)
             # if not fully connected, close socket, and reraise error
             if self.sock and not self.connected:
@@ -225,7 +225,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                 # Non-blocking SSL sockets can throw SSLError
                 raise socket.timeout()
             raise
-        except socket.error as exc:
+        except OSError as exc:
             if get_errno(exc) == errno.EWOULDBLOCK:
                 raise socket.timeout()
             raise
@@ -250,7 +250,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                 # Non-blocking SSL sockets can throw SSLError
                 raise socket.timeout()
             raise
-        except socket.error as exc:
+        except OSError as exc:
             if get_errno(exc) == errno.EWOULDBLOCK:
                 raise socket.timeout()
             raise
@@ -283,7 +283,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                     # if getaddrinfo succeeded before for another address
                     # family, reraise the previous socket.error since it's more
                     # relevant to users
-                    raise e if e is not None else socket.error("failed to resolve broker hostname") from exc
+                    raise e if e is not None else OSError("failed to resolve broker hostname") from exc
                 continue  # pragma: no cover
 
             # now that we have address(es) for the hostname, connect to broker
@@ -297,7 +297,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                         pass
                     self.sock.settimeout(timeout)
                     self.sock.connect(sa)
-                except socket.error as ex:
+                except OSError as ex:
                     e = ex
                     if self.sock is not None:
                         self.sock.close()
@@ -436,7 +436,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                 self._read_buffer = read_frame_buffer
                 self._read_buffer.seek(0)
                 raise
-            except (OSError, IOError, SSLError, socket.error) as exc:
+            except (OSError, SSLError) as exc:
                 # Don't disconnect for ssl read time outs
                 # http://bugs.python.org/issue10272
                 if isinstance(exc, SSLError) and "timed out" in str(exc):
@@ -454,7 +454,7 @@ class _AbstractTransport(object):  # pylint: disable=too-many-instance-attribute
                 self._write(s)
             except socket.timeout:
                 raise
-            except (OSError, IOError, socket.error) as exc:
+            except OSError as exc:
                 _LOGGER.debug("Transport write failed: %r", exc, extra=self.network_trace_params)
                 if get_errno(exc) not in _UNAVAIL:
                     self.connected = False
@@ -606,7 +606,7 @@ class SSLTransport(_AbstractTransport):
             while toread:
                 try:
                     nbytes = self.sock.recv_into(view[length:])
-                except socket.error as exc:
+                except OSError as exc:
                     # ssl.sock.read may cause a SSLerror without errno
                     # http://bugs.python.org/issue10272
                     if isinstance(exc, SSLError) and "timed out" in str(exc):
@@ -619,7 +619,7 @@ class SSLTransport(_AbstractTransport):
                         continue
                     raise
                 if not nbytes:
-                    raise IOError("Server unexpectedly closed connection")
+                    raise OSError("Server unexpectedly closed connection")
 
                 length += nbytes
                 toread -= nbytes
@@ -635,7 +635,7 @@ class SSLTransport(_AbstractTransport):
         try:
             write = self.sock.send
         except AttributeError:
-            raise IOError("Socket has already been closed.") from None
+            raise OSError("Socket has already been closed.") from None
 
         while s:
             try:
@@ -647,7 +647,7 @@ class SSLTransport(_AbstractTransport):
                 # None.
                 n = 0
             if not n:
-                raise IOError("Socket closed.")
+                raise OSError("Socket closed.")
             s = s[n:]
 
     def negotiate(self):
@@ -742,7 +742,7 @@ class WebSocketTransport(_AbstractTransport):
         except (WebSocketTimeoutException, SSLError, WebSocketConnectionClosedException) as exc:  # type: ignore
             self.close()
             raise ConnectionError("Websocket failed to establish connection: %r" % exc) from exc
-        except (OSError, IOError, SSLError) as e:
+        except (OSError, SSLError) as e:
             _LOGGER.info("Websocket connection failed: %r", e, extra=self.network_trace_params)
             self.close()
             raise
@@ -778,7 +778,7 @@ class WebSocketTransport(_AbstractTransport):
                         n = 0
                 return view
             except AttributeError:
-                raise IOError("Websocket connection has already been closed.") from None
+                raise OSError("Websocket connection has already been closed.") from None
             except WebSocketTimeoutException as wte:
                 raise TimeoutError("Websocket receive timed out (%s)" % wte) from wte
             except (WebSocketConnectionClosedException, SSLError) as e:
@@ -812,7 +812,7 @@ class WebSocketTransport(_AbstractTransport):
         try:
             self.sock.send_binary(s)
         except AttributeError:
-            raise IOError("Websocket connection has already been closed.") from None
+            raise OSError("Websocket connection has already been closed.") from None
         except WebSocketTimeoutException as e:
             raise socket.timeout("Websocket send timed out (%s)" % e) from e
         except (WebSocketConnectionClosedException, SSLError) as e:

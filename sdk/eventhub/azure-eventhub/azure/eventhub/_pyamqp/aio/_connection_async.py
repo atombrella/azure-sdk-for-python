@@ -228,7 +228,7 @@ class Connection:  # pylint:disable=too-many-instance-attributes
                     raise ValueError("Did not receive reciprocal protocol header. Disconnecting.")
             else:
                 await self._set_state(ConnectionState.HDR_SENT)
-        except (OSError, IOError, SSLError, socket.error, asyncio.TimeoutError) as exc:
+        except (OSError, SSLError, asyncio.TimeoutError) as exc:
             # FileNotFoundError is being raised for exception parity with uamqp when invalid
             # `connection_verify` file path is passed in. Remove later when resolving issue #27128.
             if isinstance(exc, FileNotFoundError) and exc.filename and "ca_certs" in exc.filename:
@@ -302,13 +302,7 @@ class Connection:  # pylint:disable=too-many-instance-attributes
                     self._transport.send_frame(channel, frame, **kwargs),
                     timeout=timeout,
                 )
-            except (
-                OSError,
-                IOError,
-                SSLError,
-                socket.error,
-                asyncio.TimeoutError,
-            ) as exc:
+            except (OSError, SSLError, asyncio.TimeoutError) as exc:
                 self._error = AMQPConnectionError(
                     ErrorCondition.SocketError,
                     description="Can not send frame out due to exception: " + str(exc),
@@ -340,7 +334,7 @@ class Connection:  # pylint:disable=too-many-instance-attributes
                     _LOGGER.debug("-> EmptyFrame()", extra=self._network_trace_params)
                 await self._transport.write(EMPTY_FRAME)
                 self._last_frame_sent_time = time.time()
-        except (OSError, IOError, SSLError, socket.error) as exc:
+        except (OSError, SSLError) as exc:
             self._error = AMQPConnectionError(
                 ErrorCondition.SocketError,
                 description="Can not send empty frame due to exception: " + str(exc),
@@ -754,7 +748,7 @@ class Connection:  # pylint:disable=too-many-instance-attributes
                         "Connection cannot read frames in this state: %r", self.state, extra=self._network_trace_params
                     )
                     break
-        except (OSError, IOError, SSLError, socket.error) as exc:
+        except (OSError, SSLError) as exc:
             self._error = AMQPConnectionError(
                 ErrorCondition.SocketError,
                 description="Can not read frame due to exception: " + str(exc),

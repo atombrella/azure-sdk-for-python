@@ -408,7 +408,7 @@ def extract_text_document_title(text: str, file_name: str) -> Tuple[str, str]:
             docstring = _get_topdocstring(text)
             if docstring:
                 title = f"{file_name}: {docstring}"
-        except IOError as e:
+        except OSError as e:
             logger.warning(f"Failed to get docstring for {file_name}. Exception message: {e}")
 
         return f"Title: {title}", title

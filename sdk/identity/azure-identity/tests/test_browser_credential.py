@@ -149,7 +149,7 @@ def test_redirect_server(get_token_method):
             port = random.randint(1024, 65535)
             server = AuthCodeRedirectServer(hostname, port, timeout=10)
             break
-        except socket.error:
+        except OSError:
             continue  # keep looking for an open port
 
     assert server, "failed to start redirect server"

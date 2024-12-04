@@ -75,7 +75,7 @@ def line_map(
                         out_file.write(nxt_output_string)
                         out_file.write("\n")
                         successful_lines += 1
-                    except IOError as e:
+                    except OSError as e:
                         logger.warning("Caught exception: %s", e)
                         err_file.write(nxt)
                         error_lines += 1

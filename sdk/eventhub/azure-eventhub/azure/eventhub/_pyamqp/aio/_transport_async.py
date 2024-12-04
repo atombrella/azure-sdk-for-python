@@ -126,7 +126,7 @@ class AsyncTransportMixin:
                 self._read_buffer = read_frame_buffer
                 self._read_buffer.seek(0)
                 raise
-            except (OSError, IOError, SSLError, socket.error) as exc:
+            except (OSError, SSLError) as exc:
                 # Don't disconnect for ssl read time outs
                 # http://bugs.python.org/issue10272
                 if isinstance(exc, SSLError) and "timed out" in str(exc):
@@ -144,7 +144,7 @@ class AsyncTransportMixin:
                 await self._write(s)
             except socket.timeout:
                 raise
-            except (OSError, IOError, socket.error) as exc:
+            except OSError as exc:
                 _LOGGER.debug("Transport write failed: %r", exc, extra=self.network_trace_params)
                 if get_errno(exc) not in _UNAVAIL:
                     self.connected = False
@@ -264,7 +264,7 @@ class AsyncTransport(AsyncTransportMixin):  # pylint: disable=too-many-instance-
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
                 self._set_socket_options(sock, self.socket_settings)
 
-        except (OSError, IOError, SSLError) as e:
+        except (OSError, SSLError) as e:
             _LOGGER.info("Transport connect failed: %r", e, extra=self.network_trace_params)
             # if not fully connected, close socket, and reraise error
             if self.writer and not self.connected:
@@ -323,12 +323,12 @@ class AsyncTransport(AsyncTransportMixin):  # pylint: disable=too-many-instance-
                 except AttributeError:
                     # This means that close() was called concurrently
                     # self.reader has been set to None.
-                    raise IOError("Connection has already been closed") from None
+                    raise OSError("Connection has already been closed") from None
                 except asyncio.IncompleteReadError as exc:
                     pbytes = len(exc.partial)
                     view[nbytes : nbytes + pbytes] = exc.partial
                     nbytes = pbytes
-                except socket.error as exc:
+                except OSError as exc:
                     # ssl.sock.read may cause a SSLerror without errno
                     # http://bugs.python.org/issue10272
                     if isinstance(exc, SSLError) and "timed out" in str(exc):
@@ -348,7 +348,7 @@ class AsyncTransport(AsyncTransportMixin):  # pylint: disable=too-many-instance-
                         continue
                     raise
                 if not nbytes:
-                    raise IOError("Server unexpectedly closed connection")
+                    raise OSError("Server unexpectedly closed connection")
 
                 length += nbytes
                 toread -= nbytes
@@ -365,7 +365,7 @@ class AsyncTransport(AsyncTransportMixin):  # pylint: disable=too-many-instance-
             self.writer.write(s)
             await self.writer.drain()
         except AttributeError:
-            raise IOError("Connection has already been closed") from None
+            raise OSError("Connection has already been closed") from None
 
     async def close(self):
         async with self.socket_lock:

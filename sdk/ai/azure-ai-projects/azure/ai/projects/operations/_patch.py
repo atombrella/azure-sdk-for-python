@@ -2234,8 +2234,8 @@ class AgentsOperations(AgentsOperationsGenerated):
                 file_content: FileType = (base_filename, content)
 
                 return super().upload_file(file=file_content, purpose=purpose, **kwargs)
-            except IOError as e:
-                raise IOError(f"Unable to read file: {file_path}") from e
+            except OSError as e:
+                raise OSError(f"Unable to read file: {file_path}") from e
 
         raise ValueError("Invalid parameters for upload_file. Please provide the necessary arguments.")
 
@@ -2751,7 +2751,7 @@ class AgentsOperations(AgentsOperationsGenerated):
 
             logger.debug("File '%s' saved successfully at '%s'.", sanitized_file_name, target_file_path)
 
-        except (ValueError, RuntimeError, TypeError, IOError) as e:
+        except (OSError, ValueError, RuntimeError, TypeError) as e:
             logger.error("An error occurred in save_file: %s", e)
             raise
 

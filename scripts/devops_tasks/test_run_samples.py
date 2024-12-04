@@ -244,7 +244,7 @@ def run_samples(targeted_package):
         with open(samples_dir_path + "/sample_dev_requirements.txt") as sample_dev_reqs:
             for dep in sample_dev_reqs.readlines():
                 check_call([sys.executable, "-m", "pip", "install", dep])
-    except IOError:
+    except OSError:
         pass
 
     for path, subdirs, files in os.walk(samples_dir_path):
